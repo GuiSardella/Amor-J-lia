@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Para o meu amor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        /* --- Configuração Geral --- */
+        body {
+            margin: 0;
+            padding: 0;
+            background: radial-gradient(circle at center, #1a0b14 0%, #000000 100%);
+            overflow-x: hidden;
+            overflow-y: auto;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;  
+            justify-content: center;   
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        /* --- Utilitários --- */
+        .escondido { display: none !important; }
+        .fade-in { animation: fadeIn 2s ease forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- CONTROLE DE MÚSICA --- */
+        #controle-musica {
+            position: fixed; top: 20px; right: 20px; z-index: 1000;
+            background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 105, 180, 0.3);
+            color: #ff69b4; border-radius: 50%; width: 50px; height: 50px;
+            display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s;
+        }
+        #controle-musica:hover { background: rgba(255, 105, 180, 0.2); transform: scale(1.1); }
+
+        /* --- ANIMAÇÕES --- */
+        @keyframes batimento {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.3); } 
+            100% { transform: scale(1); }
+        }
+        button i { display: inline-block; animation: batimento 1s infinite; }
+
+        @keyframes loadingPulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.5); opacity: 1; } 
+        }
+        
+        .loading-hearts-container {
+            display: flex; gap: 20px; justify-content: center;
+            margin-top: 10px; margin-bottom: 40px; 
+        }
+        .loading-heart {
+            font-size: 2.5rem; color: #ff1493;
+            animation: loadingPulse 1.2s infinite ease-in-out;
+        }
+        .loading-heart:nth-child(1) { animation-delay: 0s; }
+        .loading-heart:nth-child(2) { animation-delay: 0.2s; }
+        .loading-heart:nth-child(3) { animation-delay: 0.4s; }
+
+
+        /* --- TELA 1: O JOGO --- */
+        #tela-jogo {
+            text-align: center; width: 100%; height: 100vh;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            position: relative; z-index: 10;
+        }
+        .conteudo-jogo { margin-bottom: 20px; pointer-events: none; }
+        h1 {
+            font-family: 'Great Vibes', cursive; color: #ff69b4; font-size: 4rem; 
+            margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.7); font-weight: normal;
+        }
+        p {
+            color: #ffb7c5; font-size: 1.2rem; letter-spacing: 3px; 
+            text-transform: uppercase; font-weight: bold; opacity: 0.8; margin: 5px 0;
+        }
+        #mensagem-extra {
+            color: #ff1493; font-size: 1.5rem; font-weight: 800; margin-top: 15px;
+            text-shadow: 0 0 10px rgba(255, 20, 147, 0.5); min-height: 30px; opacity: 0; transition: opacity 0.5s ease;
+        }
+        .pulsar { animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+        
+        #botao-fujao {
+            background-color: #ff1493; color: white; border: none; padding: 15px 40px;
+            font-size: 1.2rem; border-radius: 50px; cursor: pointer; position: absolute;
+            box-shadow: 0 0 20px rgba(255, 20, 147, 0.6); font-family: 'Montserrat', sans-serif;
+            font-weight: bold; z-index: 20; transition: transform 0.1s, top 0.5s, left 0.5s; 
+            top: 60%; left: 50%; transform: translate(-50%, -50%);
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+        }
+
+        /* --- TELAS DE MENSAGEM --- */
+        .tela-mensagem {
+            text-align: center; z-index: 20; max-width: 800px; padding: 20px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            min-height: 100vh;
+        }
+        .big-heart { font-size: 4rem; color: #ff1493; margin-bottom: 20px; animation: beat 1s infinite alternate; }
+        .small-heart { font-size: 2rem; color: #ff1493; margin-bottom: 30px; }
+        @keyframes beat { to { transform: scale(1.1); } }
+        
+        .titulo-final {
+            font-family: 'Great Vibes', cursive; color: #ff69b4; font-size: 3.5rem;
+            line-height: 1.2; margin-bottom: 30px; text-shadow: 0 0 10px rgba(255, 105, 180, 0.3);
+        }
+        .subtitulo-rosa {
+            font-family: 'Great Vibes', cursive; color: #ff69b4; font-size: 2.5rem;
+            margin-bottom: 30px; text-shadow: 0 0 10px rgba(255, 105, 180, 0.3);
+        }
+
+        .frase-final {
+            color: #ffffff; font-size: 1.3rem; font-style: italic; font-weight: 300;
+            line-height: 1.6; margin-bottom: 20px; text-shadow: 1px 1px 2px black;
+        }
+        .botao-amor {
+            background-color: #ff1493; color: white; border: none; padding: 15px 30px;
+            font-size: 1.2rem; border-radius: 50px; cursor: pointer;
+            box-shadow: 0 0 20px rgba(255, 20, 147, 0.6); font-family: 'Montserrat', sans-serif;
+            font-weight: bold; transition: transform 0.2s;
+            display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 20px;
+        }
+        .botao-amor:hover { transform: scale(1.05); background-color: #e6007e; }
+        .botao-icon-only { padding: 20px !important; border-radius: 50%; width: 70px; height: 70px; }
+
+        /* --- GALERIA DE FOTOS --- */
+        .galeria-fotos { display: flex; justify-content: center; gap: 20px; margin-bottom: 30px; flex-wrap: wrap; }
+        .foto-moldura {
+            background-color: white; padding: 2px; border-radius: 15px; 
+            overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            transition: transform 0.3s ease, z-index 0.3s; position: relative;
+        }
+        .roda-esq { transform: rotate(-5deg); }
+        .roda-dir { transform: rotate(5deg); }
+        .foto-centro { transform: rotate(0deg); z-index: 10; }
+        
+        .foto-moldura:hover { transform: scale(1.2) rotate(0deg) !important; z-index: 100 !important; }
+        .foto-moldura img { width: 180px; height: 180px; object-fit: cover; display: block; border-radius: 13px; }
+        
+        @media (max-width: 600px) {
+            .galeria-fotos { gap: 10px; }
+            .foto-moldura img { width: 110px; height: 110px; }
+        }
+
+        /* --- ESTILO DA CARTINHA --- */
+        .cartinha-box {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 105, 180, 0.3);
+            max-width: 700px;
+            margin: 20px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        }
+        .texto-cartinha {
+            color: #fff; font-size: 1.1rem; line-height: 1.8;
+            text-align: justify; font-weight: 300;
+        }
+        @media (max-width: 600px) {
+            .texto-cartinha { text-align: left; font-size: 1rem; }
+            .titulo-final { font-size: 2.5rem; }
+        }
+
+        /* --- Fundo --- */
+        .heart-container {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 0; 
+        }
+        .heart {
+            position: absolute; color: #ff69b4; top: -50px; 
+            font-size: 24px; text-shadow: 0 0 5px #ff69b4; 
+            animation: fall linear forwards;
+        }
+        @keyframes fall { to { transform: translateY(120vh) rotate(360deg); } }
+
+    </style>
+</head>
+<body>
+
+    <audio id="player-musica" loop>
+        <source src="assets/AdoreYou1.mp3" type="audio/mp3">
+    </audio>
+    <div id="controle-musica" onclick="toggleMusica()">
+        <i class="fas fa-music" id="icone-musica"></i>
+    </div>
+
+    <div id="tela-jogo">
+        <div class="conteudo-jogo">
+            <h1>Para o meu grande amor...</h1>
+            <p>Tentativas: <span id="contador">0</span></p>
+            <p id="mensagem-extra"></p> 
+        </div>
+        <button id="botao-fujao">Clique aqui <i class="fas fa-heart"></i></button>
+    </div>
+
+    <div id="tela-final" class="tela-mensagem escondido">
+        <div class="big-heart"><i class="fas fa-heart"></i></div>
+        <h1 class="titulo-final">Oii Júlia ou poderia dizer,<br>meu amor!</h1>
+        <p class="frase-final">"Cada tentativa de clicar nesse botão foi como cada dia que lutei por nós. Finalmente, você chegou aqui."</p>
+        <button class="botao-amor" onclick="mostrarMensagem2()">Te amo! <i class="fas fa-heart"></i></button>
+    </div>
+
+    <div id="tela-mensagem-2" class="tela-mensagem escondido">
+        <div class="small-heart"><i class="far fa-heart"></i></div> 
+        <p class="frase-final">"Você chegou na minha vida em tão pouco tempo, mas já posso dizer que foi a melhor coisa que já me aconteceu"</p>
+        <button class="botao-amor" onclick="mostrarTelaFotos()">E esse foi um pouco do nosso inicio <i class="fas fa-heart"></i></button>
+    </div>
+
+    <div id="tela-fotos" class="tela-mensagem escondido">
+        <div class="galeria-fotos">
+            <div class="foto-moldura roda-esq">
+                <img src="assets/Nós1.jpg" alt="Foto 1"> 
+            </div>
+            <div class="foto-moldura roda-dir">
+                <img src="assets/Nós2.jpg" alt="Foto 2">
+            </div>
+        </div>
+        <p class="frase-final">
+            "Bem lá no fundo eu já sabia que te pertencia e eu já fui me entregando a ti"
+        </p>
+        <button class="botao-amor" onclick="mostrarTelaFotos2()">E vamos seguir juntos sempre <i class="fas fa-heart"></i></button>
+    </div>
+
+    <div id="tela-fotos-2" class="tela-mensagem escondido">
+        <div class="galeria-fotos">
+            <div class="foto-moldura roda-esq">
+                <img src="assets/Nós3.jpg" alt="Foto 3"> 
+            </div>
+            <div class="foto-moldura roda-dir">
+                <img src="assets/Ju1.jpg" alt="Foto 4">
+            </div>
+        </div>
+        <p class="frase-final">
+            "E eu tive coragem o suficiente para mostrar uma parte do meu amor por ti"
+        </p>
+        <h2 class="subtitulo-rosa">Você me passa confiança! &hearts;</h2>
+        <button class="botao-amor" onclick="mostrarTelaFinalLoading()">Estou com saudades <i class="fas fa-heart"></i></button>
+    </div>
+
+    <div id="tela-final-loading" class="tela-mensagem escondido">
+        <h1 class="titulo-final">Continua...</h1>
+        <div class="loading-hearts-container">
+            <i class="fas fa-heart loading-heart"></i>
+            <i class="fas fa-heart loading-heart"></i>
+            <i class="fas fa-heart loading-heart"></i>
+        </div>
+        <button class="botao-amor botao-icon-only" onclick="mostrarDiasAtuais()">
+            <i class="fas fa-heart"></i>
+        </button>
+    </div>
+
+    <div id="tela-dias-atuais" class="tela-mensagem escondido">
+        <div class="galeria-fotos">
+            <div class="foto-moldura roda-esq">
+                <img src="assets/Nós4.jpg" alt="Foto 5"> 
+            </div>
+            <div class="foto-moldura foto-centro">
+                <img src="assets/GuiJuh.jpg" alt="Foto 6"> 
+            </div>
+            <div class="foto-moldura roda-dir">
+                <img src="assets/Nós5.jpg" alt="Foto 7"> 
+            </div>
+        </div>
+        <p class="frase-final" style="font-size: 1.5rem;">
+            "Agora chegamos nos dias atuais, em que eu sou mais feliz, e compartilho minha vida com você"
+        </p>
+        <button class="botao-amor" onclick="mostrarCartinha()">Do bom dia ao boa noite <i class="fas fa-moon"></i></button>
+    </div>
+
+    <div id="tela-cartinha" class="tela-mensagem escondido">
+        <h1 class="titulo-final">Feliz Ano Novo! ✨</h1>
+        <div class="cartinha-box">
+            <p class="texto-cartinha">
+                "Meu amor, hoje o último dia do ano e o inicio de um novo ciclo, eu não poderia estar mais feliz em compartilhar a minha vida com você e você deve saber o quanto eu estou animado por isso, você está em todos os meus planos, então obrigado por tudo meu amor, por tudo nesse tempinho, desde os mínimos detalhes, tudo importa e tudo contou para chegarmos aqui hoje. Feliz ano novo paixão, te desejo muito sucesso e muita prosperidade, que esse ano seja repleto de alegria e conquistas, vou estar sempre ao seu lado, vou te fazer muito feliz, vou construir a nossa família e te dar o mundo, eu te amo mais que tudo."
+            </p>
+        </div>
+        <button class="botao-amor" onclick="mostrarHistoriaFinal()">Nossa história <i class="fas fa-heart"></i></button>
+    </div>
+
+    <div id="tela-historia-final" class="tela-mensagem escondido">
+        <div class="big-heart"><i class="fas fa-book-open"></i></div>
+        <p class="frase-final" style="font-size: 1.6rem; padding: 0 20px;">
+            "Amor, isso foi só o inicio, a nossa história nunca que termina aqui, então agora só nos resta construir a nossa história toda, nosso futuro, juntinhos, está preparada?"
+        </p>
+        <button class="botao-amor" onclick="location.reload()">Estou pronta! <i class="fas fa-check"></i></button>
+    </div>
+
+    <div class="heart-container" id="container"></div>
+
+    <script>
+        // --- 1. Lógica dos Corações ---
+        const container = document.getElementById('container');
+        function criarCoracao() {
+            const heart = document.createElement('div');
+            heart.classList.add('heart'); heart.innerHTML = '&hearts;';
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.fontSize = (Math.random() * 15 + 10) + 'px';
+            heart.style.animationDuration = (Math.random() * 4 + 3) + 's';
+            container.appendChild(heart);
+            heart.addEventListener('animationend', function() { heart.remove(); });
+        }
+        setInterval(criarCoracao, 400);
+
+        // --- 2. Lógica de Música ---
+        const audioPlayer = document.getElementById('player-musica');
+        const iconeMusica = document.getElementById('icone-musica');
+        let musicaTocando = false;
+
+        function toggleMusica() {
+            if (musicaTocando) {
+                audioPlayer.pause();
+                iconeMusica.classList.remove('fa-volume-up');
+                iconeMusica.classList.add('fa-music');
+            } else {
+                audioPlayer.play();
+                iconeMusica.classList.remove('fa-music');
+                iconeMusica.classList.add('fa-volume-up');
+            }
+            musicaTocando = !musicaTocando;
+        }
+
+        document.body.addEventListener('click', function() {
+            if (!musicaTocando) {
+                audioPlayer.play().then(() => {
+                    musicaTocando = true;
+                    iconeMusica.classList.remove('fa-music');
+                    iconeMusica.classList.add('fa-volume-up');
+                }).catch(e => console.log("Aguardando interação"));
+            }
+        }, { once: true });
+
+
+        // --- 3. Lógica das Telas e Jogo ---
+        const botao = document.getElementById('botao-fujao');
+        const contadorSpan = document.getElementById('contador');
+        const msgExtra = document.getElementById('mensagem-extra');
+        
+        // Referências das Telas
+        const telaJogo = document.getElementById('tela-jogo');
+        const telaFinal = document.getElementById('tela-final');
+        const telaMensagem2 = document.getElementById('tela-mensagem-2');
+        const telaFotos = document.getElementById('tela-fotos');
+        const telaFotos2 = document.getElementById('tela-fotos-2');
+        const telaFinalLoading = document.getElementById('tela-final-loading');
+        const telaDiasAtuais = document.getElementById('tela-dias-atuais');
+        const telaCartinha = document.getElementById('tela-cartinha');
+        const telaHistoriaFinal = document.getElementById('tela-historia-final');
+        
+        let tentativas = 0; let jogoAtivo = true; 
+
+        // Funções de Troca de Tela
+        function mostrarDeclaracao() { telaJogo.classList.add('escondido'); telaFinal.classList.remove('escondido'); telaFinal.classList.add('fade-in'); }
+        function mostrarMensagem2() { telaFinal.classList.add('escondido'); telaMensagem2.classList.remove('escondido'); telaMensagem2.classList.add('fade-in'); }
+        function mostrarTelaFotos() { telaMensagem2.classList.add('escondido'); telaFotos.classList.remove('escondido'); telaFotos.classList.add('fade-in'); }
+        function mostrarTelaFotos2() { telaFotos.classList.add('escondido'); telaFotos2.classList.remove('escondido'); telaFotos2.classList.add('fade-in'); }
+        function mostrarTelaFinalLoading() { telaFotos2.classList.add('escondido'); telaFinalLoading.classList.remove('escondido'); telaFinalLoading.classList.add('fade-in'); }
+        function mostrarDiasAtuais() { telaFinalLoading.classList.add('escondido'); telaDiasAtuais.classList.remove('escondido'); telaDiasAtuais.classList.add('fade-in'); }
+        function mostrarCartinha() { telaDiasAtuais.classList.add('escondido'); telaCartinha.classList.remove('escondido'); telaCartinha.classList.add('fade-in'); }
+        function mostrarHistoriaFinal() { telaCartinha.classList.add('escondido'); telaHistoriaFinal.classList.remove('escondido'); telaHistoriaFinal.classList.add('fade-in'); }
+
+        function interacaoBotao() {
+            if (!jogoAtivo) { mostrarDeclaracao(); return; }
+            tentativas++; contadorSpan.innerText = tentativas;
+            if (tentativas === 10) { msgExtra.innerHTML = "Não desista! &hearts;"; msgExtra.style.opacity = "1"; msgExtra.classList.add('pulsar'); }
+            if (tentativas === 15) { msgExtra.innerHTML = "Assim como não desisti de você!"; }
+            
+            // --- AQUI ESTÁ A MUDANÇA DA TENTATIVA 20 ---
+            if (tentativas === 20) {
+                jogoAtivo = false; 
+                botao.innerHTML = "Agora sim! <i class='fas fa-heart'></i>";
+                
+                // Removemos a cor verde e o comando de centralizar
+                // botao.style.backgroundColor = "#28a745"; <-- REMOVIDO
+                
+                botao.style.cursor = "pointer";
+                
+                // Removemos o movimento para o centro. 
+                // Ele ficará parado exatamente onde estava na tentativa 19.
+                
+                botao.removeEventListener('mouseover', interacaoBotao); return; 
+            }
+            
+            const novoX = Math.random() * (window.innerWidth - 150); 
+            const novoY = Math.random() * (window.innerHeight - 80);
+            botao.style.transform = "none"; botao.style.left = (novoX + 50) + "px"; botao.style.top = (novoY + 50) + "px";
+        }
+        botao.addEventListener('mouseover', interacaoBotao); botao.addEventListener('click', interacaoBotao);
+    </script>
+</body>
+</html>
